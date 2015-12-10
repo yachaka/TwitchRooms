@@ -1,0 +1,21 @@
+<html>
+<head>
+	<title>TwitchRooms</title>
+	<script src="/socket.io/socket.io.js"></script>
+	<script src="/js/twitch.js"></script>
+	<script>
+	var socket = io('http://localhost');
+	
+
+	socket.emit('join', 'testRoom');
+
+	socket.on('userJoined', function (socketId) {
+		console.log('user joined ', socketId);
+	});
+	</script>
+</head>
+<body>
+	It works!
+	<a href="#" onclick="connectWithTwitch();">Connect with twitch</a>
+</body>
+</html>

@@ -1,0 +1,20 @@
+{
+  "manifest_version": 2,
+
+  "name": "Getting started example",
+  "description": "This extension shows a Google Image search result for the current page",
+  "version": "1.0",
+
+  "content_scripts": [
+    {
+      "matches": ["http://www.twitch.tv/*"],
+      // "css": ["css/mystyles.css"],
+      "js": ["js/waitForElement.js", "js/client.js", "js/jquery.min.js"]
+    }
+  ],
+
+  "permissions": [
+    "activeTab",
+    "http://localhost/*"
+  ]
+}
