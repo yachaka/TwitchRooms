@@ -8,13 +8,17 @@
   "content_scripts": [
     {
       "matches": ["http://www.twitch.tv/*"],
-      // "css": ["css/mystyles.css"],
-      "js": ["js/waitForElement.js", "js/client.js", "js/jquery.min.js"]
+      "css": ["css/main.css"],
+      "js": ["js/waitForElement.js", "js/run.js", "js/socket.io.js", "js/twitch.js", "js/bundle.js", "js/jquery.min.js"]
     }
   ],
 
   "permissions": [
     "activeTab",
     "http://localhost/*"
+  ],
+
+  "web_accessible_resources": [
+    "injected.html"
   ]
 }

@@ -27,7 +27,6 @@ server.listen(80);
 express.use(expressRequire.static('client'));
 /** Socket.IO Middlewares **/
 io.use(function (socket, next) {
-    console.log(socket.handshake);
     cookieParser(socket.handshake, {}, next);
 });
 io.use(function (socket, next) {
@@ -61,7 +60,7 @@ express.get('/twitch_redirect', function (req, res) {
  * Sockets events
  */
 io.on('connection', function (socket) {
-    console.log(socket.access_token);
+    console.log(ClientManager.user(socket.access_token));
     socket.on('join', function (room) {
         if (socket.room)
             socket.leave(socket.room, socketLeaveRoom.bind(null, socket));

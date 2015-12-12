@@ -2,8 +2,9 @@
 var React = require('react')
 	, ReactDOM = require('react-dom');
 
-var NotConnected = require('./NotConnected.jsx'),
-	Authenticating = require('./Authenticating.jsx');
+var NotConnected = require('./NotConnected.jsx')
+	, Authenticating = require('./Authenticating.jsx')
+	, ConnectedRoom = require('./ConnectedRoom.jsx');
 
 
 var Room = React.createClass({
@@ -65,7 +66,9 @@ var Room = React.createClass({
 			return (
 				<NotConnected/>
 			);
-		return (<div className="centered-p status-message">Connected</div>);
+		return (
+			<ConnectedRoom/>
+		);
 	},
 
 
@@ -79,7 +82,5 @@ var Room = React.createClass({
 	}
 });
 
-ReactDOM.render(
-	<Room/>,
-	document.getElementById('room')
-);
+window.ReactDOM = ReactDOM;
+window.React = React;

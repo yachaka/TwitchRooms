@@ -1,4 +1,4 @@
 
 module.exports = {
-	client_dir: __dirname + '/client'
+	client_dir: __dirname + '/extension'
 };
