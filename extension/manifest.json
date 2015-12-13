@@ -9,7 +9,7 @@
     {
       "matches": ["http://www.twitch.tv/*"],
       "css": ["css/main.css"],
-      "js": ["js/waitForElement.js", "js/run.js", "js/socket.io.js", "js/twitch.js", "js/bundle.js", "js/jquery.min.js"]
+      "js": ["js/waitForElement.js", "js/jquery.min.js", "js/run.js", "js/socket.io.js", "js/twitch.js", "js/bundle.js"]
     }
   ],
 
@@ -19,6 +19,7 @@
   ],
 
   "web_accessible_resources": [
-    "injected.html"
+    "injected.html",
+    "img/twitch_logo.png"
   ]
 }

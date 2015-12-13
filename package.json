@@ -15,5 +15,8 @@
     "react-dom": "^0.14.3",
     "requestify": "^0.1.17",
     "socket.io": "^1.3.7"
+  },
+  "devDependencies": {
+    "reactify": "^1.1.1"
   }
 }

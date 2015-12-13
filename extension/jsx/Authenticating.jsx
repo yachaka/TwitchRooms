@@ -5,7 +5,7 @@ var Authenticating = React.createClass({
 	
 	render: function () {
 		return (
-			<p className="centered-p status-message">
+			<p className="tp-centered-p tp-status-message">
 				Authenticating...
 			</p>
 		);

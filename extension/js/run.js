@@ -12,7 +12,7 @@ waitForElementToDisplay('#right_col .chat-header', 40)
 
 		ReactDOM.render(
 			React.createElement(Room, null),
-			document.querySelector('#room')
+			document.querySelector('#tp-room')
 		);
 	});
 

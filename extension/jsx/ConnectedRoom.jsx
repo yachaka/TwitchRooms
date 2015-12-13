@@ -32,9 +32,9 @@ var ConnectedRoom = React.createClass({
 	render: function () {
 		return (
 
-			<div id="connectedRoom">
+			<div id="tp-connectedRoom">
 				<SearchBar/>
-				<div id="userList">
+				<div id="tp-userList">
 					{this.state.users.map(function (result) {
 						return <User data={result}/>
 					})}

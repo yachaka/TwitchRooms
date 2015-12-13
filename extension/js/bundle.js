@@ -99,7 +99,7 @@ var Authenticating = React.createClass({displayName: "Authenticating",
 	
 	render: function () {
 		return (
-			React.createElement("p", {className: "centered-p status-message"}, 
+			React.createElement("p", {className: "tp-centered-p tp-status-message"}, 
 				"Authenticating..."
 			)
 		);
@@ -143,9 +143,9 @@ var ConnectedRoom = React.createClass({displayName: "ConnectedRoom",
 	render: function () {
 		return (
 
-			React.createElement("div", {id: "connectedRoom"}, 
+			React.createElement("div", {id: "tp-connectedRoom"}, 
 				React.createElement(SearchBar, null), 
-				React.createElement("div", {id: "userList"}, 
+				React.createElement("div", {id: "tp-userList"}, 
 					this.state.users.map(function (result) {
 						return React.createElement(User, {data: result})
 					})
@@ -183,7 +183,7 @@ var SearchBar = React.createClass({displayName: "SearchBar",
 	render: function () {
 
 		return (
-			React.createElement("div", {id: "searchBar"}, 
+			React.createElement("div", {id: "tp-searchBar"}, 
 				React.createElement("input", {type: "text", placeholder: "Search for users watching the stream"})
 			)
 		);
@@ -203,10 +203,10 @@ var User = React.createClass({displayName: "User",
 		var u = this.props.data,
 			avatar = u.logo || '';
 		return (
-			React.createElement("div", {className: "user"}, 
-				React.createElement("div", {className: "wrapper", style: { backgroundImage: 'url(\'' + avatar + '\')'}}
+			React.createElement("div", {className: "tp-user"}, 
+				React.createElement("div", {className: "tp-wrapper", style: { backgroundImage: 'url(\'' + avatar + '\')'}}
 				), 
-				React.createElement("div", {className: "username"}, 
+				React.createElement("div", {className: "tp-username"}, 
 					this.props.data.display_name
 				)
 			)
@@ -234,8 +234,11 @@ var Room = React.createClass({displayName: "Room",
 		};
 	},
 	componentDidMount: function () {
-		var socket = io('http://localhost', {multiplex: false});
+		var socket = io('http://localhost:8080', {'force new connection': false, query: 'spaceName=Twitch'});
 	
+		/**
+		* SOCKET Lifecycle Callbacks
+		*****/
 		socket.on('connect', function () {
 			console.log('Socket successfully connected', socket.id);
 			this.setState({
@@ -244,28 +247,31 @@ var Room = React.createClass({displayName: "Room",
 		}.bind(this));
 
 		socket.on('error', function (err) {
-			console.error('Error', err);
+			console.error('Error:', err);
 			this.setState({
 				authenticated: false
 			});
 		}.bind(this));
-
-		socket.on('reconnecting', function (n) {
-			console.log('Attempt', n);
-			console.log(socket);
-		});
-
-		socket.emit('join', 'testRoom');
 		socket.on('userJoined', function (socketId) {
 			console.log('user joined ', socketId);
 		});
 
-		
 
-		socket.on('userLeaved', function (socketId) {
-			console.log('user leaved ', socketId);
+
+		/**
+		* Custom events
+		*****/
+		socket.on('userConnected', function (user) {
+			console.log('user connected ', user);
 		});
 
+		socket.on('Ok', function (user) {
+			console.log('ok ', user);
+		});
+
+		socket.on('userDisconnected', function (user) {
+			console.log('user disconnected ', user);
+		});
 		socket.on('no_access_token', function (data) {
 			console.log('I got no no_access_token! ');
 		});

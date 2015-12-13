@@ -15,8 +15,11 @@ var Room = React.createClass({
 		};
 	},
 	componentDidMount: function () {
-		var socket = io('http://localhost', {multiplex: false});
+		var socket = io('http://localhost:8080', {'force new connection': false, query: 'spaceName=Twitch'});
 	
+		/**
+		* SOCKET Lifecycle Callbacks
+		*****/
 		socket.on('connect', function () {
 			console.log('Socket successfully connected', socket.id);
 			this.setState({
@@ -25,28 +28,31 @@ var Room = React.createClass({
 		}.bind(this));
 
 		socket.on('error', function (err) {
-			console.error('Error', err);
+			console.error('Error:', err);
 			this.setState({
 				authenticated: false
 			});
 		}.bind(this));
-
-		socket.on('reconnecting', function (n) {
-			console.log('Attempt', n);
-			console.log(socket);
-		});
-
-		socket.emit('join', 'testRoom');
 		socket.on('userJoined', function (socketId) {
 			console.log('user joined ', socketId);
 		});
 
-		
 
-		socket.on('userLeaved', function (socketId) {
-			console.log('user leaved ', socketId);
+
+		/**
+		* Custom events
+		*****/
+		socket.on('userConnected', function (user) {
+			console.log('user connected ', user);
 		});
 
+		socket.on('Ok', function (user) {
+			console.log('ok ', user);
+		});
+
+		socket.on('userDisconnected', function (user) {
+			console.log('user disconnected ', user);
+		});
 		socket.on('no_access_token', function (data) {
 			console.log('I got no no_access_token! ');
 		});
@@ -84,3 +90,4 @@ var Room = React.createClass({
 
 window.ReactDOM = ReactDOM;
 window.React = React;
+window.Room = Room;
