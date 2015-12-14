@@ -54,6 +54,8 @@ express.get('/twitch_redirect', function (req, res) {
 
 /** Socket.IO Middlewares **/
 io.use(function (socket, next) {
+    socket.conn.on('close', function() {console.log('DISCONNECT LOL.');});
+    console.log('\n\n\n------ New socket, socket.io : ', socket.id);
     cookieParser(socket.handshake, {}, next);
 });
     /** Authentification */
@@ -82,7 +84,7 @@ io.use(function (socket, next) {
 
     socket.User = ClientManager.userForToken(socket.access_token);
 
-    console.log('User logged in ! ID :', socket.User._id);
+    console.log('  - User logged in ! ID :', socket.User._id, 'width socket', socket.id);
 
     /** Setting socket to space */
     socket.User.addSocketToSpace(socket, socket.spaceName);
@@ -90,27 +92,39 @@ io.use(function (socket, next) {
     /**
     * Joining friends rooms for status updates
     */
+    var friendsConnected = {};
     if (socket.handshake.cookies['friends']) {
-        var friendIds;
+        var friendIds, u;
         try {
             friendIds = JSON.parse(socket.handshake.cookies['friends']);
         } catch (e) {next(e)};
 
         for (var i = 0; i < friendIds.length; i++) {
+            if (u = ClientManager.userForId(friendIds[i]))
+                friendsConnected[friendIds[i]] = u._raw;
             socket.join(shelpers.name(socket.spaceName, friendIds[i]));
         }
     }
+    socket.emit('initialFriendsConnected', friendsConnected);
 
-    socket.to(shelpers.name(socket.spaceName, socket.User._id)).emit('userConnected', socket.User._raw);
+    socket.to(shelpers.name(socket.spaceName, socket.User._id)).emit('friendConnected', socket.User._raw);
 
     next();
 });
-
+io.use(function (socket, next) {
+    if (socket.conn.readyState == 'closed' || socket.conn.readyState == 'closing') {
+        socket.disconnect();
+        return (next(new Error('Socket closed')));
+    }
+    next();
+})
 
 /**
  * Sockets events
  */
 io.on('connection', function (socket) {
+    console.log('    ', 'IO connection handler, clients: ', Object.keys(io.engine.clients));
+
     socket.on('subscribe', function (room) {
         if (socket.room)
             socket.leave(socket.room, socketLeaveRoom.bind(null, socket));
@@ -128,5 +142,5 @@ io.on('connection', function (socket) {
  */
 
  function socketLeaveRoom (socket) {
-    socket.to(socket.room).emit('userLeaved', socket.id);
+    console.log('event disconnect cool')
  }

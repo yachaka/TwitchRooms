@@ -18,15 +18,15 @@ Client.prototype.createSpace = function (spaceName) {
 
 Client.prototype.delSpace = function (spaceName) {
 	if (Object.keys(this._spaces).length == 1) {
-		console
 		this.disconnect();
+		delete this._spaces[spaceName];
 		this._afterDisconnectCb();
-	}
-	
-	delete this._spaces[spaceName];
+	} else
+		delete this._spaces[spaceName];
 };
 
 Client.prototype.addSocketToSpace = function (socket, spaceName) {
+	console.log('    Adding socket to space...');
 	if (!this._spaces[spaceName])
 		this.createSpace(spaceName);
 
@@ -63,10 +63,8 @@ Client.prototype.delSocketFromSpace = function (socket, spaceName) {
 Client.prototype.disconnect = function () {
 	console.log('Disconnect client ?', this._spaces)
 	for (var space in this._spaces) {
-		io.sockets.in(shelpers.name(space, this._id)).emit('userDisconnected', this._raw);
+		io.sockets.in(shelpers.name(space, this._id)).emit('friendDisconnected', this._raw);
 	}
-
-	this._afterDisconnectCb();
 };
 
 // /**

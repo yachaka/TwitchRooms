@@ -9,7 +9,7 @@
     {
       "matches": ["http://www.twitch.tv/*"],
       "css": ["css/main.css"],
-      "js": ["js/waitForElement.js", "js/jquery.min.js", "js/run.js", "js/socket.io.js", "js/twitch.js", "js/bundle.js"]
+      "js": ["js/functions.js", "js/jquery.min.js", "js/run.js", "js/socket.io.js", "js/twitch.js", "js/bundle.js"]
     }
   ],
 

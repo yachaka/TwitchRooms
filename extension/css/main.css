@@ -1,3 +1,9 @@
+* {
+	-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+	-moz-box-sizing: border-box;    /* Firefox, other Gecko */
+	box-sizing: border-box;  
+}
+
 
 .tp-centered-p {
 	text-align: center;
@@ -6,6 +12,14 @@
 .tp-status-message {
 	color: #999;
 }
+
+.tp-notification {
+	-webkit-animation-delay: 2s; -moz-animation-delay: 2s; animation-delay: 2s;
+	-webkit-animation-duration: 0.8s; -moz-animation-duration: 0.8s; animation-duration: 0.8s;
+	 margin: 0; padding: 6px; font-size: 12px;
+}
+.tp-notification.tp-error {color: #BF3030;}
+.tp-notification.tp-success { color: #18961A;}
 
 .tp-twitch-icon {
 	width: 24px;
@@ -20,14 +34,15 @@
 
 #tp-room {
 	width: 350px;
+	height: 184px;
 	min-height: 100px;
 	background-color: #e1e1e1;
 	font-family: Helvetica, Arial;
-	font-size: 13px;
-
+	font-size: 13px !important;
 	position: absolute;
 	top: 50px;
 	z-index: 5;
+	margin-top: 200px;
 }
 
 
@@ -47,47 +62,28 @@
 
 
 
-#tp-connectedRoom {}
+#tp-connectedRoom {height: 184px;}
 
-#tp-connectedRoom .tp-user {
-	float: left;
-	margin-right: 10px;
-	margin-bottom: 10px;
-}
+	#tp-connectedRoom #tp-topBar { padding: 5px 6px; background-color: #efefef; border-bottom: 1px solid #bbb; position:relative; height: 30px;}
+		#tp-connectedRoom #tp-topBar .tp-notification { top: -30px; position: absolute;}
+	
+	#tp-connectedRoom #tp-addFriendBox {position: absolute; bottom: 40px; left: 0;}
+		#tp-connectedRoom #tp-addFriendBox #tp-addFriendWrapper { position:relative;}
+			/* Css Arrow please */ #tp-connectedRoom #tp-addFriendBox #tp-addFriendWrapper:after, #tp-connectedRoom #tp-addFriendBox #tp-addFriendWrapper:before {	top: 100%;left: 16px;border: solid transparent;content: " ";height: 0;width: 0;position: absolute;pointer-events: none;}
+			/* Css Arrow please */ #tp-connectedRoom #tp-addFriendBox #tp-addFriendWrapper:after {border-color: rgba(100, 65, 165, 0);border-top-color: #6441a5;border-width: 2px;margin-left: -2px;}
+			/* Css Arrow please */ #tp-connectedRoom #tp-addFriendBox #tp-addFriendWrapper:before {border-color: rgba(100, 65, 165, 0);border-top-color: #6441a5;border-width: 5px;margin-left: -5px;}
 
-#tp-connectedRoom .tp-user .tp-wrapper {
-	width: 48px;
-	height: 48px;
-	border-radius: 24px;
-	background-color: #ccc;
-}
+		#tp-connectedRoom #tp-addFriendBox input { padding: 4px 6px; font-size: 13px;}
 
-#tp-connectedRoom .tp-user .tp-username {
-	color: white;
-	padding: 2px 4px;
-	font-size: 11px;
-	background-color: rgba(40, 40, 40, 0.6);
-	margin-top: -12px;
-	width: 40px;
-}
+		#tp-connectedRoom #tp-addFriendBox #tp-spinner { vertical-align: middle; margin-left: 6px;}
 
-#tp-connectedRoom #tp-searchBar {
-	padding: 5px 6px;
-	background-color: #efefef;
-	border-bottom: 1px solid #bbb;
-}
+	#tp-connectedRoom #tp-userList {padding: 10px; overflow: hidden;}
 
-#tp-connectedRoom #tp-searchBar input {
-	padding: 5px 7px;
-	width: 200px;
-	border:1px solid #ccc;
-	padding-left: 24px;
-	background-image: url('../img/icon-search.png');
-	background-repeat: no-repeat;
-	background-position: 4px 4px;
-}
+		#tp-userList  .tp-user {float: left; margin-right: 10px; margin-bottom: 10px; position: relative;}
+			#tp-userList .tp-user .tp-wrapper {	width: 48px;height: 48px; border-radius: 24px; background-color: #ccc;}
+			#tp-userList .tp-user .tp-username { color: white; padding: 2px 4px; font-size: 11px; background-color: rgba(40, 40, 40, 0.6); margin-top: -8px; width: 40px;}
 
-#tp-connectedRoom #tp-userList {
-	padding: 20px;
-	overflow: hidden;
-}
+		#tp-userList  .tp-user .tp-bubble { width: 18px; height: 18px; border-radius: 10px; position: absolute; z-index: 10; text-align: center; padding-top: 2px; cursor: pointer;}
+			#tp-userList  .tp-user .tp-bubble.tp-close-bubble { top: -6px; right: -18px; font-size: 12px; background-color: #f9f9f9; color: red;}
+				#tp-userList  .tp-user .tp-bubble.tp-close-bubble:hover { background-color: #D14338; color: white;}
+

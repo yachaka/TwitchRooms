@@ -2,16 +2,14 @@
 var React = require('react');
 
 var User = require('./User.jsx')
-	, SearchBar = require('./SearchBar.jsx');
+	, TopBar = require('./TopBar.jsx');
 
 var ConnectedRoom = React.createClass({
 
 	getInitialState: function () {
-
-		var users = [];
-
-		for (var i = 0; i < 10; i++) {
-			users.push({ display_name: 'wp_yachStyle',
+		var friends = {};
+		for (var i = 0; i < 1; i++) {
+			friends[i] = { display_name: 'wp_yachStyle',
 				  _id: 59152099,
 				  name: 'wp_yachstyle',
 				  type: 'user',
@@ -22,22 +20,55 @@ var ConnectedRoom = React.createClass({
 				  _links: { self: 'https://api.twitch.tv/kraken/users/wp_yachstyle' },
 				  email: 'ihermellin@hotmail.com',
 				  partnered: false,
-				  notifications: { push: false, email: true } });
+				  notifications: { push: false, email: true } };
 		}
 		return {
-			users: users
+			friends: friends
 		};
 	},
 
+	componentDidMount: function () {
+		// var socket = this.props.socket;
+
+		// socket.on('friendConnected', function (friend) {
+		// 	console.log('friend connected ', friend);
+
+		// 	var state = this.state;
+		// 	state.friends[friend._id] = friend;
+
+		// 	this.setState(state);
+		// }.bind(this));
+
+		// socket.on('friendDisconnected', function (friend) {
+		// 	console.log('friend disconnected ', friend);
+
+		// 	var state = this.state;
+		// 	delete state.friends[friend._id];
+
+		// 	this.setState(state);
+		// }.bind(this));
+
+		// socket.on('initialFriendsConnected', function (friends) {
+		// 	console.log(friends);
+		// 	this.setState({
+		// 		friends: friends
+		// 	});
+		// }.bind(this));
+	},
+
 	render: function () {
+		var friends = [];
+
+		for (var key in this.state.friends) {
+			friends.push(<User data={this.state.friends[key]}/>);
+		}
+
 		return (
 
 			<div id="tp-connectedRoom">
-				<SearchBar/>
+				<TopBar/>
 				<div id="tp-userList">
-					{this.state.users.map(function (result) {
-						return <User data={result}/>
-					})}
+					{friends}
 				</div>
 			</div>
 		);

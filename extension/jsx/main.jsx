@@ -15,65 +15,42 @@ var Room = React.createClass({
 		};
 	},
 	componentDidMount: function () {
-		var socket = io('http://localhost:8080', {'force new connection': false, query: 'spaceName=Twitch'});
+		// var socket = io('http://localhost:8080', {query: 'spaceName=Twitch'});
 	
-		/**
-		* SOCKET Lifecycle Callbacks
-		*****/
-		socket.on('connect', function () {
-			console.log('Socket successfully connected', socket.id);
-			this.setState({
-				authenticated: true
-			});
-		}.bind(this));
+		// /**
+		// * SOCKET Lifecycle Callbacks
+		// *****/
+		// socket.on('connect', function () {
+		// 	console.log('Socket successfully connected', socket.id);
+		// 	this.setState({
+		// 		authenticated: true
+		// 	});
+		// }.bind(this));
 
-		socket.on('error', function (err) {
-			console.error('Error:', err);
-			this.setState({
-				authenticated: false
-			});
-		}.bind(this));
-		socket.on('userJoined', function (socketId) {
-			console.log('user joined ', socketId);
-		});
-
-
-
-		/**
-		* Custom events
-		*****/
-		socket.on('userConnected', function (user) {
-			console.log('user connected ', user);
-		});
-
-		socket.on('Ok', function (user) {
-			console.log('ok ', user);
-		});
-
-		socket.on('userDisconnected', function (user) {
-			console.log('user disconnected ', user);
-		});
-		socket.on('no_access_token', function (data) {
-			console.log('I got no no_access_token! ');
-		});
-
+		// socket.on('error', function (err) {
+		// 	console.error('Error:', err);
+		// 	this.setState({
+		// 		authenticated: false
+		// 	});
+		// }.bind(this));
 		
-		this.setState({
-			socket: socket
-		});
+		
+		// this.setState({
+		// 	socket: socket
+		// });
 
-		window.resetTwitchRoomConnection = this.resetConnection;
+		// window.resetTwitchRoomConnection = this.resetConnection;
 	},
 
 	render: function() {
-		if (this.state.authenticated == null)
-			return (<Authenticating/>);
-		else if (this.state.authenticated == false)
-			return (
-				<NotConnected/>
-			);
+		// if (this.state.authenticated == null)
+		// 	return (<Authenticating/>);
+		// else if (this.state.authenticated == false)
+		// 	return (
+		// 		<NotConnected/>
+		// 	);
 		return (
-			<ConnectedRoom/>
+			<ConnectedRoom socket={this.state.socket}/>
 		);
 	},
 
