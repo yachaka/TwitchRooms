@@ -55,7 +55,7 @@ function waitForElementToDisplay (selector, time) {
 /*
  * Get/set cookies
  */
-var createCookie = function(name, value, days) {
+var setCookie = function(name, value, days) {
     var expires;
     if (days) {
         var date = new Date();

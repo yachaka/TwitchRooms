@@ -1,31 +1,36 @@
 
 var React = require('react');
 
+var ActionsCreator = require('../actions/ActionsCreator');
+
 var AddFriendBox = React.createClass({
 
+	_initialState: {
+		pending: false,
+		notFound: false
+	},
 	getInitialState: function () {
-		return {
-			pending: false,
-			notFound: false
-		};
+		return this._initialState;
 	},
 	handleKeyDown: function (e) {
-		this.setState({notFound: false});
+		this.setState({pending: false, notFound: false});
 		if (e.keyCode == 13) {
-			this.confirmFriend();
+			this.addFriend();
 		} else if (e.keyCode == 27) {
 			this.props.onCancel();
 		}
 	},
 
-	confirmFriend: function () {
+	addFriend: function () {
 
 		this.setState({pending: true});
 
 		httpGet('https://api.twitch.tv/kraken/users/'+this.refs.addFriendInput.value)
 
 		.then(function (data) {
-			this.props.onSuccess(JSON.parse(data)._id);
+			var data = JSON.parse(data);
+			this.setState(this._initialState);
+			ActionsCreator.addFriend(data._id);
 		}.bind(this))
 		.error(function (data) {
 			this.setState({

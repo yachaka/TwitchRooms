@@ -2,17 +2,37 @@
 var React = require('react');
 
 var Notification = require('./common/Notification.jsx')
-	, AddFriendBox = require('./AddFriendBox.jsx');
+	, AddFriendBox = require('./AddFriendBox.jsx')
+
+	, Dispatcher = require('../Dispatcher')
+	, ActionsCreator = require('../actions/ActionsCreator')
+	, ActionsTypes = require('../../../shared/actions/Constants').Types
+
+	, DispatcherSubscriberMixin = require('../mixins/EventsSubscriberMixin')(Dispatcher);
 
 var TopBar = React.createClass({
-	
+	mixins: [DispatcherSubscriberMixin],
+
 	getInitialState: function () {
 		return {
 			showAddBox: true,
 			notification: null
 		};
 	},
-	
+	componentWillMount: function () {
+		this.subscribeToEvent(ActionsTypes.FRIEND_ADDED,
+			function () {
+				this.setState({
+					showAddBox: false,
+					notification: {
+						msg: ' ✓ Friend added',
+						type: 'success'
+					}
+				});
+			}.bind(this)
+		);
+	},
+
 	toggleInput: function () {
 		var b = !this.state.showAddBox;
 
@@ -25,22 +45,7 @@ var TopBar = React.createClass({
 	},
 
 
-	addFriend: function (friendId) {
-		console.log('Friend ID:', friendId);
-		this.setState({
-			showAddBox: false,
-			notification: {
-				msg: ' ✓ Friend added',
-				type: 'success'
-			}
-		});
-
-		var friends = getCookie('friends') || [];
-		friends.push(friendId);
-		friends.filter(function(value, index, self) {return self.indexOf(value) === index;});
-
-		createCookie('friends', JSON.stringify(friends), 31);
-	},
+	
 	render: function () {
 		var ahead = null;
 

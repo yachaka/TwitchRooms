@@ -15,10 +15,12 @@ var servers = require('./servers')
 /**
  * Internal dependencies
  */
-var cg = require('./config')
-    , shelpers = require('./SpaceHelpers')
+var cg = require('./config/config')
+    , shelpers = require('./helpers/SpaceHelpers')
     , Client = require('./Client')
-    , ClientManager = require('./ClientManager');
+    , ClientManager = require('./ClientManager')
+
+    , ActionsTypes = require('../shared/actions/Constants').Types;
 
 /**
  * Bootstrapping
@@ -32,18 +34,18 @@ server.listen(8080);
 /****************************/
 
 /** Express Middlewares **/
-express.use(expressRequire.static('extension'));
+express.use(expressRequire.static('../chromeExtension/public/'));
 
 /**
  * Express Routing, to serve html pages
  */
 express.get('/', function (req, res) {
-    res.sendFile(__dirname + '/dev.html');
+    res.sendFile(__dirname + '/views/dev.html');
 });
 
 /** Twitch login redirect **/
 express.get('/twitch_redirect', function (req, res) {
-    res.sendFile(__dirname + '/twitchRedirect.html');
+    res.sendFile(__dirname + '/views/twitchRedirect.html');
 });
 
 
@@ -100,14 +102,14 @@ io.use(function (socket, next) {
         } catch (e) {next(e)};
 
         for (var i = 0; i < friendIds.length; i++) {
+            joinRoom(socket, socket.spaceName, friendIds[i]);
             if (u = ClientManager.userForId(friendIds[i]))
                 friendsConnected[friendIds[i]] = u._raw;
-            socket.join(shelpers.name(socket.spaceName, friendIds[i]));
         }
     }
-    socket.emit('initialFriendsConnected', friendsConnected);
+    socket.emit(ActionsTypes.INITIAL_FRIENDS_PAYLOAD, friendsConnected);
 
-    socket.to(shelpers.name(socket.spaceName, socket.User._id)).emit('friendConnected', socket.User._raw);
+    socket.to(shelpers.name(socket.spaceName, socket.User._id)).emit(ActionsTypes.FRIEND_CONNECTED, socket.User._raw);
 
     next();
 });
@@ -125,22 +127,39 @@ io.use(function (socket, next) {
 io.on('connection', function (socket) {
     console.log('    ', 'IO connection handler, clients: ', Object.keys(io.engine.clients));
 
-    socket.on('subscribe', function (room) {
-        if (socket.room)
-            socket.leave(socket.room, socketLeaveRoom.bind(null, socket));
+    socket.on(ActionsTypes.DELETE_FRIEND, function (friendId) {
+        console.log('-- Got asked to DELETE friend ', friendId);
+        leaveRoom(socket, socket.spaceName, friendId);
+        socket.emit(ActionsTypes.FRIEND_DELETED, friendId);
 
-        socket.join(room);
-        socket.room = room;
-        socket.to(room).emit('userJoined', socket.id);
+        if (u = ClientManager.userForId(friendId))
+            socket.emit(ActionsTypes.FRIEND_DISCONNECTED, friendId);
     });
 
-    socket.on('disconnect', socketLeaveRoom.bind(null, socket));
+    socket.on(ActionsTypes.ADD_FRIEND, function (friendId) {
+        console.log('++ Got asked to ADD friend ', friendId);
+        joinRoom(socket, socket.spaceName, friendId);
+        socket.emit(ActionsTypes.FRIEND_ADDED, friendId);
+
+        if (u = ClientManager.userForId(friendId))
+            socket.emit(ActionsTypes.FRIEND_CONNECTED, u._raw);
+    });
 });
 
 /**
  * Sockets callback
  */
 
- function socketLeaveRoom (socket) {
-    console.log('event disconnect cool')
- }
+/**
+ * Join a room (identified by the spaceName + the clientId)
+ */
+function joinRoom(socket, spaceName, friendId) {
+    socket.join(shelpers.name(spaceName, friendId));
+}
+
+/**
+ * Leaves a room (identified by the spaceName + the clientId)
+ */
+ function leaveRoom(socket, spaceName, friendId) {
+    socket.join(shelpers.name(spaceName, friendId));
+}

@@ -1,6 +1,8 @@
 
 var io = require('./servers').io
-	, shelpers = require('./SpaceHelpers');
+	, shelpers = require('./helpers/SpaceHelpers')
+
+	, ActionsTypes = require('../shared/actions/Constants').Types;
 
 function Client(twitchUserInfo, afterDisconnectCb) {
 	this._id = twitchUserInfo._id;
@@ -63,7 +65,7 @@ Client.prototype.delSocketFromSpace = function (socket, spaceName) {
 Client.prototype.disconnect = function () {
 	console.log('Disconnect client ?', this._spaces)
 	for (var space in this._spaces) {
-		io.sockets.in(shelpers.name(space, this._id)).emit('friendDisconnected', this._raw);
+		io.sockets.in(shelpers.name(space, this._id)).emit(ActionsTypes.FRIEND_DISCONNECTED, this._raw._id);
 	}
 };
 

@@ -9,7 +9,7 @@
     {
       "matches": ["http://www.twitch.tv/*"],
       "css": ["css/main.css"],
-      "js": ["js/functions.js", "js/jquery.min.js", "js/run.js", "js/socket.io.js", "js/twitch.js", "js/bundle.js"]
+      "js": ["public/js/functions.js", "public/js/jquery.min.js", "public/js/run.js", "public/js/socket.io.js", "public/js/twitch.js", "public/js/bundle.js"]
     }
   ],
 
@@ -19,7 +19,7 @@
   ],
 
   "web_accessible_resources": [
-    "injected.html",
-    "img/twitch_logo.png"
+    "public/injected.html",
+    "public/img/twitch_logo.png"
   ]
 }
