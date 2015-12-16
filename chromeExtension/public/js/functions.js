@@ -14,15 +14,12 @@ function waitForElementToDisplay (selector, time) {
 	}
 
 	function _setElementThere (bool) {
-        console.log('Elelemt set')
 		_elementThere = bool;
 		_process();
 	}
 
 	function _watch (selector) {
-            console.log('watch')
         if (document.querySelector(selector) != null) {
-            console.log('FOUND')
             _setElementThere(true);
             return;
         }
@@ -35,11 +32,8 @@ function waitForElementToDisplay (selector, time) {
 
 
     function _process () {
-        console.log('process called', _elementThere, _callback)
     	if (!_elementThere || !_callback)
     		return ;
-
-        console.log('process after')
 
     	_callback();
     }
@@ -136,4 +130,19 @@ function addEventsListener(el, s, fn) {
   for (var i=0, iLen=evts.length; i<iLen; i++) {
     el.addEventListener(evts[i], fn, false);
   }
+}
+
+function bindOneTimeEventExceptFor(bindEventTo, event, callback, exceptFor) {
+
+    var _stopPropagation = function (e) {
+        e.stopPropagation();
+    };
+
+    var _wrapped = function () {
+        bindEventTo.removeEventListener(event, _wrapped);
+        exceptFor.removeEventListener(event, _stopPropagation);
+    };
+
+    bindEventTo.addEventListener(event, _wrapped);
+    exceptFor.addEventListener(event, _stopPropagation);
 }

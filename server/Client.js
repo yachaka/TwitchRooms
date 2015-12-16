@@ -6,7 +6,7 @@ var io = require('./servers').io
 
 function Client(twitchUserInfo, afterDisconnectCb) {
 	this._id = twitchUserInfo._id;
-	this._raw = twitchUserInfo;
+	this.name = twitchUserInfo.name;
 
 	this._spaces = {};
 
@@ -37,24 +37,9 @@ Client.prototype.addSocketToSpace = function (socket, spaceName) {
 	socket.on('disconnect', this.delSocketFromSpace.bind(this, socket, spaceName));
 };
 
-// Client.prototype.hydrateSubscriptions = function (newSubscriptions) {
-// 	this._subscriptions = this._subscriptions.concat(newSubscriptions).filter(function (value, index, self) {return self.indexOf(value) === index;});
-// };
-
-// /**
-//  * Self sockets ***
-//  **/
-// Client.prototype.addSelfSocket = function (socket) {
-// 	console.log('-- -- Adding socket #'+socket.id+' to client '+this._id+ ', space '+socket.space.name);
-	
-// 	this._spaces[socket.space.name].sockets.push(socket);
-// 	socket.join(this._spaces[socket.space.name].selfRoom);
-
-// 	socket.on('disconnect', this.delSelfSocket.bind(this, socket));
-// };
 
 Client.prototype.delSocketFromSpace = function (socket, spaceName) {
-	console.log('-- -- DELETING socket #'+socket.id+' from client '+this._id);
+	console.log('-- -- DELETING socket #'+socket.id+' from client '+this.name);
 	
 	this._spaces[spaceName]--;
 	if (this._spaces[spaceName] == 0) {
@@ -65,20 +50,9 @@ Client.prototype.delSocketFromSpace = function (socket, spaceName) {
 Client.prototype.disconnect = function () {
 	console.log('Disconnect client ?', this._spaces)
 	for (var space in this._spaces) {
-		io.sockets.in(shelpers.name(space, this._id)).emit(ActionsTypes.FRIEND_DISCONNECTED, this._raw._id);
+		io.sockets.in(shelpers.name(space, this.name)).emit(ActionsTypes.FRIEND_DISCONNECTED, this.name);
 	}
 };
 
-// /**
-//  * Subscription methods ***
-//  **/
-// Client.prototype.subscribe = function (socket) {
-// 	console.log('-- -- Socket #' + socket.id + ' subscribed to client ' + this._id + ' !')
-// 	socket.join(this._statusRoom);
-// };
-
-// Client.prototype.unsubscribe = function (socket) {
-// 	socket.leave(this._statusRoom);
-// };
 
 module.exports = Client;

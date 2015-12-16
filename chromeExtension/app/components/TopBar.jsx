@@ -15,7 +15,7 @@ var TopBar = React.createClass({
 
 	getInitialState: function () {
 		return {
-			showAddBox: true,
+			showAddBox: false,
 			notification: null
 		};
 	},
@@ -47,7 +47,7 @@ var TopBar = React.createClass({
 
 	
 	render: function () {
-		var ahead = null;
+		var ahead = null, plusClassName = this.state.showAddBox ? 'active' : '';
 
 		if (this.state.showAddBox)
 			ahead = <AddFriendBox onSuccess={this.addFriend} onCancel={this.toggleInput}/>;
@@ -57,7 +57,7 @@ var TopBar = React.createClass({
 			<div id="tp-top">
 				<div id="tp-topBar">
 					{ ahead }
-					<img src="/img/plus-icon.png" title="Mark a friend" onClick={this.toggleInput}/>
+					<img id="tp-addAFriend" className={plusClassName} src={ chrome && chrome.extension ? chrome.extension.getURL('/public/img/plus-icon.png') : '/img/plus-icon.png'} title="Add a friend" onClick={this.toggleInput}/>
 				</div>
 			</div>
 		);

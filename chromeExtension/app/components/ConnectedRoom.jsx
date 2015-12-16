@@ -4,45 +4,50 @@ var React = require('react');
 var User = require('./User.jsx')
 	, TopBar = require('./TopBar.jsx')
 
+	, Socket = require('../Socket')
+
 	, Dispatcher = require('../Dispatcher')
 	, ActionsCreator = require('../actions/ActionsCreator')
 	, ActionsTypes = require('../../../shared/actions/Constants').Types
 
 	, DispatcherSubscriberMixin = require('../mixins/EventsSubscriberMixin')(Dispatcher);
 
+var socket = require('../Socket');
+
 var ConnectedRoom = React.createClass({
 	mixins: [DispatcherSubscriberMixin],
 
 	getInitialState: function () {
 		return {
-			friends: {}
+			friends: []
 		};
 	},
 
-	componentDidMount: function () {
-		this.subscribeToEvent(ActionsTypes.INITIAL_FRIENDS_PAYLOAD, function (friends) {
-			console.log(friends, 'payload');
+	componentWillMount: function () {
+		this.subscribeToEvent(ActionsTypes.INITIAL_FRIENDS_PAYLOAD, function (friendNames) {
+			console.log(friendNames, 'payload');
 			this.setState({
-				friends: friends
+				friends: friendNames
 			});
 		}.bind(this));
 
-		this.subscribeToEvent(ActionsTypes.FRIEND_CONNECTED, function (friend) {
+		this.subscribeToEvent(ActionsTypes.FRIEND_CONNECTED, function (friendName) {
 			console.log('friend connected ', friend);
 
-			var state = this.state;
-			state.friends[friend._id] = friend;
-
-			this.setState(state);
+			this.setState({
+				friends: this.state.friends.concat([friendName])
+			});
 		}.bind(this));
 
-		this.subscribeToEvent(ActionsTypes.FRIEND_DISCONNECTED, function (friendId) {
-			console.log('friend disconnected ', friendId);
+		this.subscribeToEvent(ActionsTypes.FRIEND_DISCONNECTED, function (friendName) {
+			console.log('friend disconnected ', friendName);
 
-			var state = this.state;
-			delete state.friends[friendId];
+			var newFriends = this.state.friends.slice();
+			newFriends.slice(newFriends.indexOf(friendName), 1);
 
-			this.setState(state);
+			this.setState({
+				friends: newFriends
+			});
 		}.bind(this));
 
 	},
@@ -50,15 +55,15 @@ var ConnectedRoom = React.createClass({
 	render: function () {
 		var friends = [];
 
-		for (var key in this.state.friends) {
-			friends.push(<User data={this.state.friends[key]}/>);
-		}
+		this.state.friends.forEach(function (value) {
+			friends.push(<User key={value} friendName={value}/>);
+		});
 
 		return (
 
 			<div id="tp-connectedRoom">
 				<TopBar/>
-				<div id="tp-userList">
+				<div id="tp-userList" className="tp-bottom-section">
 					{friends}
 				</div>
 			</div>

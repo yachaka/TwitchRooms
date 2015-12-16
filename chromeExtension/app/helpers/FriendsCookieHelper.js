@@ -16,7 +16,7 @@ module.exports = {
 	},
 
 	addFriend: function (friendId) {
-		var friends = _getCookie();
+		var friends = _getCookie() || [];
 
 		friends.push(friendId);
 		friends = friends.filter(function (value, index, array) { return array.indexOf(value) === index; });

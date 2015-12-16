@@ -6,13 +6,13 @@ var Dispatcher = require('../Dispatcher')
 
 module.exports = {
 
-	addFriend: function (friendId) {
-		Socket.emit(ActionsType.ADD_FRIEND, friendId);
+	addFriend: function (friendName) {
+		Socket.emit(ActionsType.ADD_FRIEND, friendName);
 	},
 
-	deleteFriend: function (friendId) {
-		Socket.emit(ActionsType.DELETE_FRIEND, friendId);
-		Dispatcher.emit(ActionsType.DELETING_FRIEND, friendId);
+	deleteFriend: function (friendName) {
+		Socket.emit(ActionsType.DELETE_FRIEND, friendName);
+		Dispatcher.emit(ActionsType.DELETING_FRIEND, friendName);
 	},
 
 };

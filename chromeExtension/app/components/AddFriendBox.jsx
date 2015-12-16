@@ -15,7 +15,8 @@ var AddFriendBox = React.createClass({
 	handleKeyDown: function (e) {
 		this.setState({pending: false, notFound: false});
 		if (e.keyCode == 13) {
-			this.addFriend();
+			if (this.refs.addFriendInput.value.length > 3)
+				this.addFriend();
 		} else if (e.keyCode == 27) {
 			this.props.onCancel();
 		}
@@ -37,6 +38,7 @@ var AddFriendBox = React.createClass({
 				pending: false,
 				notFound: true
 			});
+			this.refs.addFriendInput.focus();
 		}.bind(this));
 
 	},
@@ -45,8 +47,8 @@ var AddFriendBox = React.createClass({
 			<div id="tp-addFriendBox">
 				<div id="tp-addFriendWrapper">
 					{ this.state.notFound == true ? <p className="tp-notification tp-error"> ✕ User not found </p> : null }
-					<input autoFocus ref="addFriendInput" id="addFriendInput" onKeyDown={this.handleKeyDown} placeholder="Add friend"/>
-					{ this.state.pending == true ? <img id="tp-spinner" src="/img/spinner.gif"/> : null}
+					<input autoFocus maxLength="25" disabled={this.state.pending} ref="addFriendInput" id="addFriendInput" onKeyDown={this.handleKeyDown} placeholder="Add friend"/>
+					{ this.state.pending == true ? <img id="tp-spinner" src="/img/spinner.svg"/> : null}
 				</div>
 			</div>
 		);

@@ -77,6 +77,7 @@ io.use(function (socket, next) {
                 console.log(err.stack);
                 next(err);
             });
+
     next();
 });
     //
@@ -86,30 +87,33 @@ io.use(function (socket, next) {
 
     socket.User = ClientManager.userForToken(socket.access_token);
 
-    console.log('  - User logged in ! ID :', socket.User._id, 'width socket', socket.id);
+    console.log('  - User logged in ! Name :', socket.User.name, 'width socket', socket.id);
 
     /** Setting socket to space */
     socket.User.addSocketToSpace(socket, socket.spaceName);
 
+
     /**
     * Joining friends rooms for status updates
     */
-    var friendsConnected = {};
+    var friendsConnected = [];
     if (socket.handshake.cookies['friends']) {
-        var friendIds, u;
+        var friendNames, u;
         try {
-            friendIds = JSON.parse(socket.handshake.cookies['friends']);
-        } catch (e) {next(e)};
-
-        for (var i = 0; i < friendIds.length; i++) {
-            joinRoom(socket, socket.spaceName, friendIds[i]);
-            if (u = ClientManager.userForId(friendIds[i]))
-                friendsConnected[friendIds[i]] = u._raw;
+            friendNames = JSON.parse(socket.handshake.cookies['friends']);
+            for (var i = 0; i < friendNames.length; i++) {
+                joinRoom(socket, socket.spaceName, friendNames[i]);
+                if (u = ClientManager.userForName(friendNames[i]))
+                    friendsConnected.push(friendNames[i]);
+            }
+            
+            socket.emit(ActionsTypes.INITIAL_FRIENDS_PAYLOAD, friendsConnected);
+        } catch (e) {
         }
-    }
-    socket.emit(ActionsTypes.INITIAL_FRIENDS_PAYLOAD, friendsConnected);
 
-    socket.to(shelpers.name(socket.spaceName, socket.User._id)).emit(ActionsTypes.FRIEND_CONNECTED, socket.User._raw);
+    }
+
+    socket.to(shelpers.name(socket.spaceName, socket.User.name)).emit(ActionsTypes.FRIEND_CONNECTED, socket.User.name);
 
     next();
 });
@@ -127,22 +131,24 @@ io.use(function (socket, next) {
 io.on('connection', function (socket) {
     console.log('    ', 'IO connection handler, clients: ', Object.keys(io.engine.clients));
 
-    socket.on(ActionsTypes.DELETE_FRIEND, function (friendId) {
-        console.log('-- Got asked to DELETE friend ', friendId);
-        leaveRoom(socket, socket.spaceName, friendId);
-        socket.emit(ActionsTypes.FRIEND_DELETED, friendId);
+    socket.on(ActionsTypes.DELETE_FRIEND, function (friendName) {
+        console.log('-- Got asked to DELETE friend ', friendName);
+        leaveRoom(socket, socket.spaceName, friendName);
+        socket.emit(ActionsTypes.FRIEND_DELETED, friendName);
 
-        if (u = ClientManager.userForId(friendId))
-            socket.emit(ActionsTypes.FRIEND_DISCONNECTED, friendId);
+        if (u = ClientManager.userForId(friendName))
+            socket.emit(ActionsTypes.FRIEND_DISCONNECTED, friendName);
     });
 
-    socket.on(ActionsTypes.ADD_FRIEND, function (friendId) {
-        console.log('++ Got asked to ADD friend ', friendId);
-        joinRoom(socket, socket.spaceName, friendId);
-        socket.emit(ActionsTypes.FRIEND_ADDED, friendId);
+    socket.on(ActionsTypes.ADD_FRIEND, function (friendName) {
+        console.log('++ Got asked to ADD friend ', friendName);
+        joinRoom(socket, socket.spaceName, friendName);
+        socket.emit(ActionsTypes.FRIEND_ADDED, friendName);
 
-        if (u = ClientManager.userForId(friendId))
-            socket.emit(ActionsTypes.FRIEND_CONNECTED, u._raw);
+        if (u = ClientManager.userForId(friendName)){
+            console.log('friend is logged on : ', u)
+            socket.emit(ActionsTypes.FRIEND_CONNECTED, friendName);
+        }
     });
 });
 
@@ -153,13 +159,13 @@ io.on('connection', function (socket) {
 /**
  * Join a room (identified by the spaceName + the clientId)
  */
-function joinRoom(socket, spaceName, friendId) {
-    socket.join(shelpers.name(spaceName, friendId));
+function joinRoom(socket, spaceName, friendName) {
+    socket.join(shelpers.name(spaceName, friendName));
 }
 
 /**
  * Leaves a room (identified by the spaceName + the clientId)
  */
- function leaveRoom(socket, spaceName, friendId) {
-    socket.join(shelpers.name(spaceName, friendId));
+ function leaveRoom(socket, spaceName, friendName) {
+    socket.join(shelpers.name(spaceName, friendName));
 }

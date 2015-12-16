@@ -4,9 +4,9 @@ waitForElementToDisplay('#right_col .chat-header', 40)
 	
 	var h = document.querySelector('#right_col .chat-header');
 
-	$.get(chrome.extension.getURL('/injected.html'))
+	httpGet(chrome.extension.getURL('/public/injected.html'))
 
-	.done(function (data) {
+	.then(function (data) {
 		var room = (new DOMParser()).parseFromString(data, 'text/xml').firstChild;
 		h.parentNode.insertBefore(room, h.nextSibling);
 
@@ -15,7 +15,6 @@ waitForElementToDisplay('#right_col .chat-header', 40)
 			document.querySelector('#tp-room')
 		);
 	});
-
 
 
 });

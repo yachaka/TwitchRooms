@@ -8,16 +8,17 @@ module.exports = new ClientManager();
 function ClientManager() {
 
 	var _tokens = [];
-	var _clients = [];
+	var _clients = {};
 
 	this.logIn = function (access_token) {
 		var handle = function (response) {
 			var response = response.getBody();
         	if (response.error)
         		throw new Error(response.message);
-        	_tokens[access_token] = response._id;
-			_clients[response._id] = new Client(response, function () {
-				delete _clients[response._id];
+        	console.log(response)
+        	_tokens[access_token] = response.name.toLowerCase();
+			_clients[response.name.toLowerCase()] = new Client(response, function () {
+				delete _clients[response.name];
 			});
 		}.bind(this);
 
@@ -27,24 +28,25 @@ function ClientManager() {
 	};
 
 	this.isLoggedIn = function (access_token) {
-		var _id;
-		if (!(_id = _tokens[access_token]))
+		var name;
+		if (!(name = _tokens[access_token]))
 			return false;
-		return !!_clients[_id];
+		return !!_clients[name];
 	};
 
 	this.userForToken = function (access_token) {
-		return this.userForId(_tokens[access_token]);
+		return this.userForName(_tokens[access_token]);
 	};
 
-	this.userForId = function (_id) {
-		return _clients[_id];
+	this.userForName = function (name) {
+		name = name.toLowerCase();
+		return _clients[name];
 	};
 
-	this.usersForIds = function (_ids) {
-		return _ids.map(function (_id) {
-			return this.userForId(_id);
-		}, this);
-	};
+	// this.usersForIds = function (_ids) {
+	// 	return _ids.map(function (_id) {
+	// 		return this.userForId(_id);
+	// 	}, this);
+	// };
 
 };

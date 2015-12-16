@@ -12,7 +12,7 @@ var Bubble = React.createClass({
 				className={classNames("tp-bubble bounceIn animated", this.props.className)}
 				onClick={this.props.onClick}
 				>
-				{this.props.content}
+				{this.props.content || ''}
 			</div>
 		);
 	}

@@ -4,8 +4,7 @@ var io = require('socket.io-client');
 var Dispatcher = require('./Dispatcher')
 	, ActionsTypes = require('../../shared/actions/Constants').Types;
 
-var socket = io('http://localhost:8080', {query: 'spaceName=Twitch'});
-
+var socket = io('http://localhost:8080', {query: 'spaceName=Twitch', autoConnect: false});
 
 /**
 * SOCKET Lifecycle Callbacks
