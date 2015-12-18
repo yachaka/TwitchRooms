@@ -1,4 +1,6 @@
 
+
+
 waitForElementToDisplay('#right_col .chat-header', 40)
 .then(function () {
 	
@@ -11,7 +13,7 @@ waitForElementToDisplay('#right_col .chat-header', 40)
 		h.parentNode.insertBefore(room, h.nextSibling);
 
 		ReactDOM.render(
-			React.createElement(Room, null),
+			React.createElement(App),
 			document.querySelector('#tp-room')
 		);
 	});

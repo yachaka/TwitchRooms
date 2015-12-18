@@ -5,15 +5,26 @@
   "description": "This extension shows a Google Image search result for the current page",
   "version": "1.0",
 
+  "background": {
+    "persistent": false,
+    "scripts": ["background.js"]
+  },
+
   "content_scripts": [
     {
-      "matches": ["http://www.twitch.tv/*"],
+      "matches": ["http://www.twitch.tv/*", "http://localhost:8080/"],
       "css": ["public/css/main.css"],
       "js": ["public/js/functions.js", "public/js/run.js", "public/js/twitch.js", "public/js/bundle.js"]
+    },
+    {
+      "matches": ["http://localhost:8080/twitch_redirect"],
+      "js": ["public/js/twitchRedirect.js"]
     }
   ],
 
   "permissions": [
+    "tabs",
+    "storage",
     "activeTab",
     "http://localhost:8080/*"
   ],
@@ -21,5 +32,6 @@
   "web_accessible_resources": [
     "public/injected.html",
     "public/img/*.png"
-  ]
+  ],
+  "incognito": "split"
 }

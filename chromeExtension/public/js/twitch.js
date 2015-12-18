@@ -7,3 +7,7 @@ function connectWithTwitch() {
     '&scope=user_read' +
     '&force_verify=true', 'Log in with Twitch', 'width=600, height=600');
 }
+
+// function connectWithTwitch() {
+// 	window.open('http://localhost:8080/twitch_redirect#access_token=ccc', 'Log in with Twitch', 'width=600, height=600');
+// }

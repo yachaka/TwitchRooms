@@ -19,34 +19,35 @@ var ConnectedRoom = React.createClass({
 
 	getInitialState: function () {
 		return {
-			friends: []
+			friends: {}
 		};
 	},
 
 	componentWillMount: function () {
-		this.subscribeToEvent(ActionsTypes.INITIAL_FRIENDS_PAYLOAD, function (friendNames) {
-			console.log(friendNames, 'payload');
+		this.subscribeToEvent(ActionsTypes.INITIAL_FRIENDS_PAYLOAD, function (friends) {
+			console.log(friends, 'payload');
 			this.setState({
-				friends: friendNames
+				friends: friends
 			});
 		}.bind(this));
 
-		this.subscribeToEvent(ActionsTypes.FRIEND_CONNECTED, function (friendName) {
+		this.subscribeToEvent(ActionsTypes.FRIEND_CONNECTED, function (friend) {
 			console.log('friend connected ', friend);
 
+			var copyFriends = JSON.parse(JSON.stringify(this.state.friends));
+			copyFriends[friend._id] = friend;
 			this.setState({
-				friends: this.state.friends.concat([friendName])
+				friends: copyFriends
 			});
 		}.bind(this));
 
-		this.subscribeToEvent(ActionsTypes.FRIEND_DISCONNECTED, function (friendName) {
-			console.log('friend disconnected ', friendName);
+		this.subscribeToEvent(ActionsTypes.FRIEND_DISCONNECTED, function (friendId) {
+			console.log('friend disconnected ', friendId);
 
-			var newFriends = this.state.friends.slice();
-			newFriends.slice(newFriends.indexOf(friendName), 1);
-
+			var copyFriends = JSON.parse(JSON.stringify(this.state.friends));
+			delete copyFriends[friendId];
 			this.setState({
-				friends: newFriends
+				friends: copyFriends
 			});
 		}.bind(this));
 
@@ -55,9 +56,9 @@ var ConnectedRoom = React.createClass({
 	render: function () {
 		var friends = [];
 
-		this.state.friends.forEach(function (value) {
-			friends.push(<User key={value} friendName={value}/>);
-		});
+		for (var _id in this.state.friends) {
+			friends.push(<User key={_id} data={this.state.friends[_id]}/>);
+		}
 
 		return (
 

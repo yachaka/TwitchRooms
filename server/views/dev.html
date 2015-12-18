@@ -10,13 +10,29 @@
 	</div>
 
 	<script type="text/javascript" src="/js/twitch.js"></script>
-	<script type="text/javascript" src="/js/bundle.js"></script>
 	<script type="text/javascript" src="/js/functions.js"></script>
+	<script type="text/javascript" src="/js/bundle.js"></script>
 	<script>
-	ReactDOM.render(
-		React.createElement(Room, null),
-		document.querySelector('#tp-room')
-	);
+	function Storage() {
+
+	}
+
+	Storage.prototype.get = function (key, cb) {
+		cb(localStorage.getItem(key));
+	};
+
+	Storage.prototype.set = function (key, value) {
+		localStorage.setItem(key, value);
+	};
+	var s = new Storage();
+	s.get('access_token', function (access_token) {
+		window.TP_ACCESS_TOKEN = access_token;
+		console.log(window.TP_ACCESS_TOKEN);
+		ReactDOM.render(
+			React.createElement(App),
+			document.querySelector('#tp-room')
+		);
+	});
 	</script>
 </body>
 </html>

@@ -16,7 +16,7 @@ var NotConnected = require('./NotConnected.jsx')
 	, FriendsCookieHelper = require('../helpers/FriendsCookieHelper');
 
 
-var Room = React.createClass({
+var App = React.createClass({
 	mixins: [EventsSubscriberMixin],
 
 	getInitialState: function () {
@@ -25,7 +25,24 @@ var Room = React.createClass({
 		};
 	},
 	componentWillMount: function () {
-		Socket.connect();
+		chrome.runtime.sendMessage({type: 'get'}, function (cfg) {
+			if (!cfg)
+				cfg = {};
+			Socket
+				.setAccessToken(cfg.accessToken).setFriends(cfg.friends)
+				.createConnection();
+			Socket.s.connect();
+		});
+
+		chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+			if (request.type == 'accessTokenChanged') {
+				Socket.s.disconnect();
+				Socket
+					.setAccessToken(request.accessToken)
+					.createConnection();
+				Socket.s.connect();
+			}
+		});
 		// Socket.io.on('connect_error', console.log.bind(console, 'Connect_error fired'));
 		// Socket.io.on('connect_timeout', console.log.bind(console, 'connect_timeout fired'));
 		// Socket.io.on('reconnect', console.log.bind(console, 'reconnect fired'));
@@ -33,11 +50,15 @@ var Room = React.createClass({
 		// Socket.io.on('reconnecting', console.log.bind(console, 'reconnecting fired'));
 		// Socket.io.on('reconnect_error', console.log.bind(console, 'reconnect_error fired'));
 		// Socket.io.on('reconnect_failed', console.log.bind(console, 'reconnect_failed fired'));
-		this.subscribeToEvent(ActionsTypes.SOCKET_CONNECTED, this.setState.bind(this, {authenticated: true}));
-		this.subscribeToEvent(ActionsTypes.SOCKET_DISCONNECTED, this.setState.bind(this, {authenticated: false}));
+		this.subscribeToEvent(ActionsTypes.SOCKET_CONNECTED, function () {
+			this.setState({authenticated: true});
+		}.bind(this));
+		this.subscribeToEvent(ActionsTypes.SOCKET_DISCONNECTED, function (err) {
+			this.setState({authenticated: false});
+		}.bind(this));
 
-		this.subscribeToEvent(ActionsTypes.FRIEND_DELETED, FriendsCookieHelper.deleteFriend);
-		this.subscribeToEvent(ActionsTypes.FRIEND_ADDED, FriendsCookieHelper.addFriend);
+		// this.subscribeToEvent(ActionsTypes.FRIEND_DELETED, FriendsCookieHelper.deleteFriend);
+		// this.subscribeToEvent(ActionsTypes.FRIEND_ADDED, FriendsCookieHelper.addFriend);
 	},
 
 	render: function() {
@@ -65,4 +86,4 @@ var Room = React.createClass({
 
 window.ReactDOM = ReactDOM;
 window.React = React;
-window.Room = Room;
+window.App = App;
