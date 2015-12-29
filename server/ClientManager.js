@@ -16,10 +16,12 @@ function ClientManager() {
 			
         	if (response.error)
         		throw new Error(response.message);
-        	_tokens[socket.access_token] = response._id;
-			_clients[response._id] = new Client(response, function () {
-				delete _clients[response._id];
-			});
+        	if (!_tokens[socket.access_token])
+	        	_tokens[socket.access_token] = response._id;
+	        if (!_clients[response._id])
+				_clients[response._id] = new Client(response, function () {
+					delete _clients[response._id];
+				});
 		}.bind(this);
 
 		return User
@@ -40,6 +42,10 @@ function ClientManager() {
 
 	this.userForId = function (_id) {
 		return _clients[_id];
+	};
+
+	this.clients = function () {
+		return _clients;
 	};
 
 	// this.usersForIds = function (_ids) {

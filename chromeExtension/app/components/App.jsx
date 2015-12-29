@@ -11,13 +11,13 @@ var NotConnected = require('./NotConnected.jsx')
 	, Dispatcher = require('../Dispatcher')
 	, ActionsTypes = require('../../../shared/actions/Constants').Types
 
-	, EventsSubscriberMixin = require('../mixins/EventsSubscriberMixin')(Dispatcher)
+	, DispatcherSubscriberMixin = require('../mixins/EventsSubscriberMixin')(Dispatcher)
 
 	, FriendsCookieHelper = require('../helpers/FriendsCookieHelper');
 
 
 var App = React.createClass({
-	mixins: [EventsSubscriberMixin],
+	mixins: [DispatcherSubscriberMixin],
 
 	getInitialState: function () {
 		return {
@@ -25,14 +25,7 @@ var App = React.createClass({
 		};
 	},
 	componentWillMount: function () {
-		chrome.runtime.sendMessage({type: 'get'}, function (cfg) {
-			if (!cfg)
-				cfg = {};
-			Socket
-				.setAccessToken(cfg.accessToken).setFriends(cfg.friends)
-				.createConnection();
-			Socket.s.connect();
-		});
+		Socket.createConnection();
 
 		chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 			if (request.type == 'accessTokenChanged') {

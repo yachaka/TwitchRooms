@@ -2,7 +2,6 @@
 chrome.runtime.onMessage.addListener( function(request, sender, sendResponse) {
 	switch (request.type) {
 		case 'get':
-			console.log('gettt')
 			chrome.storage.sync.get(['accessToken', 'friends'], sendResponse);
 			break;
 		case 'set':

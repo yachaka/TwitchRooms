@@ -5,7 +5,6 @@
 var servers = require('./servers')
     , expressRequire = servers.expressRequire
     , express = servers.express
-    , cookieParser = require('cookie-parser')()
     , requestify = require('requestify')
     , server = servers.httpServer
     , io = servers.io
@@ -16,6 +15,8 @@ var servers = require('./servers')
  * Internal dependencies
  */
 var cg = require('./config/config')
+    , SocketIOMiddlewares = require('./middlewares')
+
     , shelpers = require('./helpers/SpaceHelpers')
     , Client = require('./Client')
     , ClientManager = require('./ClientManager')
@@ -26,7 +27,6 @@ var cg = require('./config/config')
  * Bootstrapping
  */
 server.listen(8080);
-
 
 
 /****************************/
@@ -57,39 +57,20 @@ express.get('/twitch_redirect', function (req, res) {
 /** Socket.IO Middlewares **/
 io.use(function (socket, next) {
     socket.conn.on('close', function() {console.log('DISCONNECT LOL.');});
-    console.log('\n\n\n------ New socket, socket.io : ', socket.id, socket.handshake);
-    cookieParser(socket.handshake, {}, next);
-});
-    /** Authentification */
-io.use(function (socket, next) {
-
-    /** No space name */
-    if (!socket.handshake.query.spaceName)
-        return next(new Error('No query.spaceName'));
-    socket.spaceName = socket.handshake.query.spaceName;
-
-    /** No access token */
-    if (!socket.handshake.query.access_token)
-        return next(new Error('No Access Token'));
-    socket.access_token = socket.handshake.query.access_token;
-
-    if (!ClientManager.isLoggedIn(socket.access_token))
-        return ClientManager
-            .logIn(socket)
-            .then(next, function (err) {
-                console.log(err.stack);
-                next(err);
-            });
-
+    console.log('\n\n\n------ New socket : ', socket.id, ' query: ', socket.handshake.query);
     next();
 });
+    /** Cookies parsing */
+io.use(SocketIOMiddlewares.CookieParser);
+    /** Authentification */
+io.use(SocketIOMiddlewares.Auth);
     //
 io.use(function (socket, next) {
     socket.User = ClientManager.userForToken(socket.access_token);
-    console.log('  - User logged in ! Name :', socket.User._id, 'with socket', socket.id);
+    console.log('  - User logged in ! Name :', socket.User._public.name, 'with socket', socket.id);
 
     /** Setting socket to space */
-    socket.User.addSocketToSpace(socket, socket.spaceName);
+    socket.User.addSocket(socket, socket.spaceName);
 
 
     /**
@@ -129,24 +110,27 @@ io.use(function (socket, next) {
  */
 io.on('connection', function (socket) {
     console.log('    ', 'IO connection handler, clients: ', Object.keys(io.engine.clients));
+    // console.log('Current Clients: ', ClientManager.clients()['59152099']._spaces);
 
     socket.on(ActionsTypes.DELETE_FRIEND, function (friendId) {
         console.log('-- Got asked to DELETE friend ', friendId);
-        leaveRoom(socket, socket.spaceName, friendId);
+        socket.User.leaveFriendRoom(socket.spaceName, friendId);
         socket.emit(ActionsTypes.FRIEND_DELETED, friendId);
 
-        if (u = ClientManager.userForId(friendId))
-            socket.emit(ActionsTypes.FRIEND_DISCONNECTED, friendId);
+        if (u = ClientManager.userForId(friendId)) {
+            u.leaveFriendRoom(socket.spaceName, friendId);
+            io.sockets.in(shelpers.selfName(socket.spaceName, socket.User._id)).emit(ActionsTypes.FRIEND_DISCONNECTED, friendId);
+        }
     });
 
     socket.on(ActionsTypes.ADD_FRIEND, function (friendId) {
         console.log('++ Got asked to ADD friend ', friendId);
-        joinRoom(socket, socket.spaceName, friendId);
+        socket.User.joinFriendRoom(socket.spaceName, friendId);
         socket.emit(ActionsTypes.FRIEND_ADDED, friendId);
 
         if (u = ClientManager.userForId(friendId)){
             console.log('friend is logged on : ', u)
-            socket.emit(ActionsTypes.FRIEND_CONNECTED, u._public);
+            io.sockets.in(shelpers.selfName(socket.spaceName, socket.User._id)).emit(ActionsTypes.FRIEND_CONNECTED, u._public);
         }
     });
 });
@@ -166,5 +150,5 @@ function joinRoom(socket, spaceName, friendId) {
  * Leaves a room (identified by the spaceName + the clientId)
  */
  function leaveRoom(socket, spaceName, friendId) {
-    socket.join(shelpers.name(spaceName, friendId));
+    socket.leave(shelpers.name(spaceName, friendId));
 }
